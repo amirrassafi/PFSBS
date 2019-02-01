@@ -3,13 +3,15 @@ class Salp:
     def __init__(self, dim, ub, lb):
         self.__pos = np.random.uniform(low=lb, high=ub, size=dim)
         self.__pos_history = []
-        self.__fitness = 0
+        self.__cost_history = []
+        self.__cost = np.inf
 
-    def set_fitness(self, fitness):
-        self.__fitness= fitness
+    def set_cost(self, cost):
+        self.__cost_history.append(self.__cost)
+        self.__cost= cost
 
-    def get_fitness(self):
-        return self.__fitness
+    def get_cost(self):
+        return self.__cost
 
     def get_position(self):
         return self.__pos
@@ -28,18 +30,11 @@ class Salp:
     def reset_position_history(self):
         self.__pos_history = []   
 
-class BSSA:
-    def __init__(self, pop, dim, tf, ub, lb):
-        self.__pop_size = [Salp(dim, ub, lb) for i in range(pop)]
-        self.__tf = tf
-        self.__ub = ub
-        self.__lb = lb
-
-    def train(self, max_iteration, train_data, test_data):
-        for i in range(max_iteration):
-            pass
 
 if __name__=='__main__':
-    s = Salp(3, 1, 0)
-    print(s.get_position())
-    s.set_position([1, 2, 3])
+    s1 = Salp(3, 1, 0)
+    s2 = Salp(3, 1, 0) 
+    print(s1.get_position())
+    s1.set_position([1, 2, 3])
+    print("Id s1 is {}".format(id(s1)))
+    print("Id s2 is {}".format(id(s2)))
