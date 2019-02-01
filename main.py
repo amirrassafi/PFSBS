@@ -1,4 +1,4 @@
-import salp
+from salp import *
 import numpy as np
 
 pop_size = 40
