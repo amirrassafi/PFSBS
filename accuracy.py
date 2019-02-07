@@ -5,7 +5,7 @@ from sklearn.metrics import accuracy_score as ac_sc
 
 alpha = 0.01
 
-def train_acc(x, trn, trg):
+def cal_cost(x, trn, trg):
     x = [int(a) for a in np.round(x)]
     x = [i for i in range(len(x)) if x[i]==1]
     if sum(x) == 0 : return np.inf
@@ -16,8 +16,8 @@ def train_acc(x, trn, trg):
     clf.fit(trn, trg)
     score = cv(clf, trn, trg, cv=5, scoring="accuracy")
     score = np.average(score)
-    return (1-alpha)*score + alpha * (sum(x)/len(x))
-    
+    error = 1 - score
+    return (1-alpha)*error + alpha * (sum(x)/len(x))
 
 def test_acc(x, tst, tst_trg, trn, trn_trg):
     x = [int(a) for a in np.round(x)]
