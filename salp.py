@@ -5,6 +5,10 @@ class Salp:
         self.__pos_history = []
         self.__cost_history = []
         self.__cost = np.inf
+        self.__dim = dim
+        
+    def get_dim(self):
+        return self.__dim
 
     def set_cost(self, cost):
         self.__cost_history.append(self.__cost)
