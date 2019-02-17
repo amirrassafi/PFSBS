@@ -17,7 +17,7 @@ def cal_cost(x, trn, trg):
     score = cv(clf, trn, trg, cv=5, scoring="accuracy")
     score = np.average(score)
     error = 1 - score
-    return (1-alpha)*error + alpha * (sum(x)/len(x))
+    return (1-alpha)*error + alpha * (sum(x)/len(x)), error, sum(x)/len(x)
 
 def test_acc(x, tst, tst_trg, trn, trn_trg):
     x = [int(a) for a in np.round(x)]
