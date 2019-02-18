@@ -2,6 +2,8 @@ from salp import Salp
 from accuracy import cal_cost
 import numpy as np
 import logging 
+import os
+from copy import deepcopy
 
 logger = logging.getLogger("main.bssa")
 
@@ -29,17 +31,28 @@ class BSSA:
     def get_best_cost(self):
         return self.__pop[0].get_cost()
 
-    
+    def replace_with_worst_salp(self, best_salp):
+        self.__pop = sorted(self.__pop, key=lambda x:x.get_cost())
+        self.__pop[-1].set_position(best_salp.get_position())
+        self.__pop[-1].set_cost(best_salp.get_cost())
+
+    def reset_history(self):
+        self.__cost_history = []
+        self.__food_history = []
+
+    def get_cost_history(self):
+        return self.__cost_history
+
+    def get_food_history(self):
+        return self.__food_history
 
     def train(self, max_iteration, train_data, train_target, test_data, test_target):
-        self.__food_history = []
-        self.__cost_history = []
         us = self.__update_strategy
         tf = self.__tf
         cf = self.__cost_func
         #measure accuracy and sort respect to the fitness
         for s in self.__pop:
-            c = cf(s.get_position(), train_data, train_target)
+            c, _, _ = cf(s.get_position(), train_data, train_target)
             s.set_cost(c)
 
         self.__pop = sorted(self.__pop, key=lambda x:x.get_cost())
@@ -67,7 +80,7 @@ class BSSA:
                 pos = s.get_position()
                 pos = np.array(list(map(lambda x:l if x<l else(u if x>u else x), pos)))
                 s.set_position(pos)
-                c = cf(s.get_position(), train_data, train_target)
+                c, _, _ = cf(s.get_position(), train_data, train_target)
                 s.set_cost(c)
                 if c < food.get_cost():
                     food.set_position(s.get_position())
@@ -75,5 +88,6 @@ class BSSA:
                     logger.debug("best changed to this cost {} last cost {}".format(s.get_cost(), food.get_cost()))   
             self.__food_history.append(sum(np.round(food.get_position())))
             self.__cost_history.append(food.get_cost())
-            logger.info("iteratation {} cost {}".format(i, food.get_cost()))
-        return self.__cost_history, self.__food_history
+            logger.info("iteratation {} cost {} pid {}".format(i, food.get_cost(), os.getpid()))
+        self.__pop[0] = food
+        return self.__cost_history, self.__food_history, food.get_cost()
