@@ -18,6 +18,12 @@ class BSSA:
         self.__cost_history = []
         self.__update_strategy = upate_strategy
         self.__cost_func = cal_cost
+    
+    def get_pop(self):
+        return self.__pop
+
+    def set_pop(self, pop):
+        self.__pop = pop
 
     def get_best_salp(self):
         return self.__pop[0]
@@ -88,6 +94,6 @@ class BSSA:
                     logger.debug("best changed to this cost {} last cost {}".format(s.get_cost(), food.get_cost()))   
             self.__food_history.append(sum(np.round(food.get_position())))
             self.__cost_history.append(food.get_cost())
-            logger.info("iteratation {} cost {} pid {}".format(i, food.get_cost(), os.getpid()))
+            logger.info("iter {} cost {} pid {} ppid {}".format(i, food.get_cost(), os.getpid(), os.getppid()))
         self.__pop[0] = food
         return self.__cost_history, self.__food_history, food.get_cost()
