@@ -26,8 +26,8 @@ ub = 1
 lb = 0
 def tf(x):
     return 1/(1+np.exp(-x))
-strategies = ["TCSSA1", "TCSSA1", "TCSSA1", "TCSSA1"]
-sub_chains = ["S1", "S2", "S3", "S4"]
+strategies = ["TCSSA2", "TCSSA2", "TCSSA2", "TCSSA2"]
+sub_chains = ["S3", "S2", "S3", "S4"]
 
 #Define bssa object
 bssa_list = []
@@ -39,8 +39,8 @@ def train_bssa(in_object_q, out_object_q, iter_num):
     bssa.train(iter_num, x_train, y_train, x_test, y_test)
     out_object_q.put(pickle.dumps(bssa))
 
-iterations = 2
-sync_iter = 1
+iterations = 4
+sync_iter = 4
 #Train
 t = time.time()
 for i in range(iterations//sync_iter):
@@ -63,10 +63,9 @@ for i in range(iterations//sync_iter):
         bssa_list.append(pickle.loads(r.get()))
     
     bssa_list = sorted(bssa_list, key= lambda x: x.get_best_cost())
-    logger.debug([a.get_best_cost() for a in bssa_list])
     for bssa in bssa_list[1:]:
         bssa.replace_with_worst_salp(bssa_list[0].get_best_salp())
-    logger.info("The best salp of each bssa replaced with worst one")
+        logger.info("The best salp of each bssa replaced with worst one")
 
 logger.info("Time = {}".format(time.time() - t))
 
@@ -77,8 +76,11 @@ for bssa, i in zip(bssa_list, range(len(bssa_list))):
     ax.set_ylabel("iteration")
     ax.plot(bssa.get_cost_history(), 'g')
     ax = fig.add_subplot(1, 2, 2)
-    ax.set_title("error, selected_feature history")
-    ax.plot(bssa.get_error_history(), 'r', label="cross validation error")
-    ax.plot(bssa.get_selected_features_history(), 'b', label="selcted features")
+    ax.set_title("err, selected features history")
+    sf = bssa.get_selected_features_history()[-1]*problem_dim
+    acc = (bssa.get_acc_history()[-1])*100
+    ax.plot(bssa.get_acc_history(), 'r', label="CV acc, final {:.3f} %".format(acc))
+    ax.plot(bssa.get_selected_features_history(), 'b', label="selcted features {}".format(sf))
+
     ax.legend()
 plt.show()
