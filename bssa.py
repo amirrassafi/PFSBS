@@ -14,8 +14,9 @@ class BSSA:
         self.__tf = tf
         self.__ub = ub
         self.__lb = lb
-        self.__food_history = []
+        self.__selected_features_history = []
         self.__cost_history = []
+        self.__error_history = []
         self.__update_strategy = upate_strategy
         self.__cost_func = cal_cost
     
@@ -41,16 +42,20 @@ class BSSA:
         self.__pop = sorted(self.__pop, key=lambda x:x.get_cost())
         self.__pop[-1].set_position(best_salp.get_position())
         self.__pop[-1].set_cost(best_salp.get_cost())
-
+        
     def reset_history(self):
         self.__cost_history = []
-        self.__food_history = []
+        self.__selected_features_history = []
+        self.__error_history = []
 
     def get_cost_history(self):
         return self.__cost_history
 
-    def get_food_history(self):
-        return self.__food_history
+    def get_selected_features_history(self):
+        return self.__selected_features_history
+
+    def get_error_history(self):
+        return self.__error_history
 
     def train(self, max_iteration, train_data, train_target, test_data, test_target):
         us = self.__update_strategy
@@ -87,13 +92,15 @@ class BSSA:
                 pos = np.array(list(map(lambda x:l if x<l else(u if x>u else x), pos)))
                 s.set_position(pos)
                 c, _, _ = cf(s.get_position(), train_data, train_target)
-                s.set_cost(c)
                 if c < food.get_cost():
                     food.set_position(s.get_position())
                     food.set_cost(s.get_cost())
                     logger.debug("best changed to this cost {} last cost {}".format(s.get_cost(), food.get_cost()))   
-            self.__food_history.append(sum(np.round(food.get_position())))
+            
+            _, e, f = cf(food.get_position(), train_data, train_target)
+            self.__error_history.append(e)
+            self.__selected_features_history.append(f)
             self.__cost_history.append(food.get_cost())
             logger.info("iter {} cost {} pid {} ppid {}".format(i, food.get_cost(), os.getpid(), os.getppid()))
         self.__pop[0] = food
-        return self.__cost_history, self.__food_history, food.get_cost()
+        return self.__cost_history, self.__selected_features_history, food.get_cost()

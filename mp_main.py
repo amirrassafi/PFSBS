@@ -39,8 +39,8 @@ def train_bssa(in_object_q, out_object_q, iter_num):
     bssa.train(iter_num, x_train, y_train, x_test, y_test)
     out_object_q.put(pickle.dumps(bssa))
 
-iterations = 50
-sync_iter = 5
+iterations = 2
+sync_iter = 1
 #Train
 t = time.time()
 for i in range(iterations//sync_iter):
@@ -70,12 +70,15 @@ for i in range(iterations//sync_iter):
 
 logger.info("Time = {}".format(time.time() - t))
 
-for bssa in bssa_list:
+for bssa, i in zip(bssa_list, range(len(bssa_list))):
     fig = plt.figure()
     ax = fig.add_subplot(1, 2, 1)
     ax.set_title("cost")
-    ax.plot(bssa.get_cost_history())
+    ax.set_ylabel("iteration")
+    ax.plot(bssa.get_cost_history(), 'g')
     ax = fig.add_subplot(1, 2, 2)
-    ax.set_title("food history")
-    ax.plot(bssa.get_food_history())
+    ax.set_title("error, selected_feature history")
+    ax.plot(bssa.get_error_history(), 'r', label="cross validation error")
+    ax.plot(bssa.get_selected_features_history(), 'b', label="selcted features")
+    ax.legend()
 plt.show()
