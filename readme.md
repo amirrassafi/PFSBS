@@ -11,6 +11,18 @@ source venv/bin/activate
 python main.py
 ```
 
+### Run Multiprocess
+```
+python mp_main.py
+```
+
+### Check The Accuracy With All Features
+```
+python accuracy_test.py
+```
+
+
+
 ### See Update Strategies
 ```
 python update_strategy.py
