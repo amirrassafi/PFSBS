@@ -1,6 +1,7 @@
 import numpy as np
 from sklearn.neighbors import KNeighborsClassifier as knn
-from sklearn.svm import SVC
+from sklearn.svm import NuSVC 
+from sklearn.svm import SVC 
 from sklearn.model_selection import cross_val_score as cv
 from sklearn.metrics import accuracy_score as ac_sc
 
@@ -28,7 +29,7 @@ def cal_cost_svm(x, trn, trg):
     trn = trn.reshape(trn.shape[1], -1)
     trn = trn[x_index, :]
     trn = np.transpose(trn)
-    clf = SVC(gamma='auto')
+    clf = SVC(gamma="auto")
     clf.fit(trn, trg)
     score = cv(clf, trn, trg, cv=5, scoring="accuracy")
     score = np.average(score)
