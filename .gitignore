@@ -1,3 +1,5 @@
+#dataset
+dataset/*
 #test files
 test.py
 #log
