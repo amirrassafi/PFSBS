@@ -1,23 +1,40 @@
 import numpy as np
 from sklearn.neighbors import KNeighborsClassifier as knn
+from sklearn.svm import SVC
 from sklearn.model_selection import cross_val_score as cv
 from sklearn.metrics import accuracy_score as ac_sc
 
 alpha = 0.01
 
-def cal_cost(x, trn, trg):
+def cal_cost_knn(x, trn, trg):
+    nn = 10
     x = [int(a) for a in np.round(x)]
     x_index = [i for i in range(len(x)) if x[i]==1]
     if sum(x) == 0 : return np.inf
     trn = trn.reshape(trn.shape[1], -1)
     trn = trn[x_index, :]
     trn = np.transpose(trn)
-    clf = knn(n_neighbors=5)
+    clf = knn(n_neighbors=nn)
     clf.fit(trn, trg)
     score = cv(clf, trn, trg, cv=5, scoring="accuracy")
     score = np.average(score)
     error = 1 - score
-    return (1-alpha)*error + alpha * (sum(x)/len(x)), error, sum(x)*1.0/len(x)
+    return (1-alpha)*error + alpha * (sum(x)*1.0/len(x)), error, sum(x)*1.0/len(x)
+
+def cal_cost_svm(x, trn, trg):
+    x = [int(a) for a in np.round(x)]
+    x_index = [i for i in range(len(x)) if x[i]==1]
+    if sum(x) == 0 : return np.inf
+    trn = trn.reshape(trn.shape[1], -1)
+    trn = trn[x_index, :]
+    trn = np.transpose(trn)
+    clf = SVC(gamma='auto')
+    clf.fit(trn, trg)
+    score = cv(clf, trn, trg, cv=5, scoring="accuracy")
+    score = np.average(score)
+    error = 1 - score
+    return (1-alpha)*error + alpha * (sum(x)*1.0/len(x)), error, sum(x)*1.0/len(x)
+
 
 def test_acc(x, tst, tst_trg, trn, trn_trg):
     x = [int(a) for a in np.round(x)]
