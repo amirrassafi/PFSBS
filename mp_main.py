@@ -5,6 +5,7 @@ import numpy as np
 from sklearn import datasets
 from sklearn.model_selection import train_test_split
 
+from accuracy import test_acc_svm
 from bssa import BSSA
 from pickable_us import UPDATE_STRATEGIES as us
 
@@ -27,7 +28,7 @@ lb = 0
 def tf(x):
     return 1/(1+np.exp(-x))
 strategies = ["TCSSA2", "TCSSA2", "TCSSA2", "TCSSA2"]
-sub_chains = ["S3", "S2", "S3", "S4"]
+sub_chains = ["S1", "S2", "S3", "S4"]
 
 #Define bssa object
 bssa_list = []
@@ -39,8 +40,8 @@ def train_bssa(in_object_q, out_object_q, iter_num):
     bssa.train(iter_num, x_train, y_train, x_test, y_test)
     out_object_q.put(pickle.dumps(bssa))
 
-iterations = 4
-sync_iter = 4
+iterations = 25
+sync_iter = 5
 #Train
 t = time.time()
 for i in range(iterations//sync_iter):
@@ -65,7 +66,7 @@ for i in range(iterations//sync_iter):
     bssa_list = sorted(bssa_list, key= lambda x: x.get_best_cost())
     for bssa in bssa_list[1:]:
         bssa.replace_with_worst_salp(bssa_list[0].get_best_salp())
-        logger.info("The best salp of each bssa replaced with worst one")
+    logger.info("The best salp of each bssa replaced with worst one")
 
 logger.info("Time = {}".format(time.time() - t))
 
@@ -83,4 +84,7 @@ for bssa, i in zip(bssa_list, range(len(bssa_list))):
     ax.plot(bssa.get_selected_features_history(), 'b', label="selcted features {}".format(sf))
 
     ax.legend()
+sf = bssa_list[0].get_best_salp().get_position()
+print(sf)
+print("Test accuracy = {}".format(test_acc_svm(list(sf), x_test, y_test, x_train, y_train)))
 plt.show()
