@@ -4,6 +4,7 @@ import time
 import numpy as np
 from sklearn import datasets
 from sklearn.model_selection import train_test_split
+from sklearn import preprocessing 
 
 from accuracy import test_acc_svm
 from bssa import BSSA
@@ -19,6 +20,7 @@ logger = logging.getLogger("main.mp__main")
 
 #Load dataset
 dataset = datasets.load_breast_cancer()
+dataset.data = preprocessing.scale(dataset.data)
 x_train, x_test, y_train, y_test = train_test_split(dataset.data, dataset.target, test_size = 0.2, random_state=42)
 #Set and define parameter
 problem_dim = dataset.data.shape[1]
@@ -80,7 +82,7 @@ for bssa, i in zip(bssa_list, range(len(bssa_list))):
     ax.set_title("err, selected features history")
     sf = bssa.get_selected_features_history()[-1]*problem_dim
     acc = (bssa.get_acc_history()[-1])*100
-    ax.plot(bssa.get_acc_history(), 'r', label="CV acc, final {:.3f} %".format(acc))
+    ax.plot(bssa.get_acc_history(), 'r', label="acc, final {:.3f} %".format(acc))
     ax.plot(bssa.get_selected_features_history(), 'b', label="selcted features {}".format(sf))
 
     ax.legend()

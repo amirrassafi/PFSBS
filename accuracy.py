@@ -11,7 +11,7 @@ alpha = 0.01
 
 #Nearest neighbour for KNN
 nn = 10
-svm_kernel = "rbf"
+svm_kernel = "linear"
 
 def cal_cost_tree(x, trn, trg):
     x = [int(a) for a in np.round(x)]

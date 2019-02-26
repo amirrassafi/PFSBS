@@ -3,7 +3,7 @@ from sklearn import datasets
 from sklearn.model_selection import train_test_split
 from accuracy import cal_cost_knn, cal_cost_svm, cal_cost_tree
 from accuracy import test_acc_knn, test_acc_svm, test_acc_tree
-
+from sklearn import preprocessing
 import numpy as np
 
 
@@ -20,15 +20,17 @@ import numpy as np
 dataset = datasets.load_breast_cancer()
 data_x = dataset.data
 data_y = dataset.target
-# print(data_x)
+print(data_x[0])
 # print(data_y)
+data_x = preprocessing.scale(data_x)
 
 data_x = np.array(data_x)
 data_y = np.array(data_y)
-x_train, x_test, y_train, y_test = train_test_split(data_x, data_y, test_size = 0.25)
+x_train, x_test, y_train, y_test = train_test_split(data_x, data_y, test_size = 0.25, random_state = 0)
 problem_dim = len(x_train[0])
 
-dim = np.round(np.random.rand((problem_dim)))
+#dim = np.round(np.random.rand((problem_dim)))
+dim = np.ones(problem_dim)
 print(dim, sum(dim))
 #KNN
 _, e, _= cal_cost_knn(dim, x_train, y_train)
