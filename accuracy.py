@@ -11,12 +11,12 @@ alpha = 0.01
 
 #Nearest neighbour for KNN
 nn = 10
-svm_kernel = "linear"
+svm_kernel = "rbf"
 
 def cal_cost_tree(x, trn, trg):
     x = [int(a) for a in np.round(x)]
-    x_index = [i for i in range(len(x)) if x[i]==1]
     if sum(x) == 0 : return np.inf
+    x_index = [i for i in range(len(x)) if x[i]==1]
     trn = trn.reshape(trn.shape[1], -1)
     trn = trn[x_index, :]
     trn = np.transpose(trn)
@@ -29,9 +29,10 @@ def cal_cost_tree(x, trn, trg):
 
 
 def cal_cost_knn(x, trn, trg):
-    x = [int(a) for a in np.round(x)]
+    x = list(map(int, np.round(x)))
+    if sum(x) == 0 : 
+        return np.inf, np.inf, 1
     x_index = [i for i in range(len(x)) if x[i]==1]
-    if sum(x) == 0 : return np.inf
     trn = trn.reshape(trn.shape[1], -1)
     trn = trn[x_index, :]
     trn = np.transpose(trn)
@@ -44,8 +45,9 @@ def cal_cost_knn(x, trn, trg):
 
 def cal_cost_svm(x, trn, trg):
     x = [int(a) for a in np.round(x)]
+    if sum(x) == 0 : 
+        return np.inf, np.inf, 1
     x_index = [i for i in range(len(x)) if x[i]==1]
-    if sum(x) == 0 : return np.inf
     trn = trn.reshape(trn.shape[1], -1)
     trn = trn[x_index, :]
     trn = np.transpose(trn)
@@ -59,6 +61,8 @@ def cal_cost_svm(x, trn, trg):
 
 def test_acc_knn(x, tst, tst_trg, trn, trn_trg):
     x = [int(a) for a in np.round(x)]
+    if sum(x) == 0:
+        return 0
     x = [i for i in range(len(x)) if x[i]==1]
     tst = tst.reshape(tst.shape[1], -1)
     tst = tst[x, :]
@@ -74,6 +78,8 @@ def test_acc_knn(x, tst, tst_trg, trn, trn_trg):
 
 def test_acc_svm(x, tst, tst_trg, trn, trn_trg):
     x = [int(a) for a in np.round(x)]
+    if sum(x) == 0:
+        return 0
     x = [i for i in range(len(x)) if x[i]==1]
     tst = tst.reshape(tst.shape[1], -1)
     tst = tst[x, :]
@@ -90,6 +96,8 @@ def test_acc_svm(x, tst, tst_trg, trn, trn_trg):
 
 def test_acc_tree(x, tst, tst_trg, trn, trn_trg):
     x = [int(a) for a in np.round(x)]
+    if sum(x) == 0:
+        return
     x = [i for i in range(len(x)) if x[i]==1]
     tst = tst.reshape(tst.shape[1], -1)
     tst = tst[x, :]
