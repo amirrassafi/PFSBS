@@ -8,25 +8,56 @@ from sklearn import preprocessing
 
 from accuracy import test_acc_svm
 from bssa import BSSA
+from myplot import plot_cost_accuracy
 from pickable_us import UPDATE_STRATEGIES as us
 
 import matplotlib.pyplot as plt
 import main
 import logging
 
+from dataset import load_dataset, replace_none_with_zero
+from dataset import load_mice, load_hepatitis, load_epileptic
+
 import pickle
+#parameters
+iterations = 20
+sync_iter = 5
+pop_size = 20
+ub = 1
+lb = 0
 
 logger = logging.getLogger("main.mp__main")
 
 #Load dataset
+#breast cancer dataset
 dataset = datasets.load_breast_cancer()
 dataset.data = preprocessing.scale(dataset.data)
 x_train, x_test, y_train, y_test = train_test_split(dataset.data, dataset.target, test_size = 0.2, random_state=42)
+
+#hepatit
+data_x, data_y = load_hepatitis()
+data_x = replace_none_with_zero(data_x)
+data_x = preprocessing.scale(data_x)
+x_train, x_test, y_train, y_test = train_test_split(data_x, data_y, test_size = 0.2, random_state=42)
+
+#Diabetes
+dataset = datasets.load_diabetes()
+dataset.data = preprocessing.scale(dataset.data)
+x_train, x_test, y_train, y_test = train_test_split(dataset.data, dataset.target, test_size = 0.2, random_state=42)
+
+#mice
+x, y = load_mice()
+x = preprocessing.scale(x)
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size = 0.2, random_state=42)
+
+#epileptic
+x, y = load_epileptic()
+x = preprocessing.scale(x)
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size = 0.2, random_state=42)
+
 #Set and define parameter
-problem_dim = dataset.data.shape[1]
-pop_size = 30
-ub = 1
-lb = 0
+problem_dim = len(x_train[0])
+
 def tf(x):
     return 1/(1+np.exp(-x))
 strategies = ["TCSSA2", "TCSSA2", "TCSSA2", "TCSSA2"]
@@ -42,8 +73,7 @@ def train_bssa(in_object_q, out_object_q, iter_num):
     bssa.train(iter_num, x_train, y_train, x_test, y_test)
     out_object_q.put(pickle.dumps(bssa))
 
-iterations = 25
-sync_iter = 5
+
 #Train
 t = time.time()
 for i in range(iterations//sync_iter):
@@ -73,20 +103,7 @@ for i in range(iterations//sync_iter):
 logger.info("Time = {}".format(time.time() - t))
 
 for bssa, i in zip(bssa_list, range(len(bssa_list))):
-    fig = plt.figure()
-    ax = fig.add_subplot(1, 2, 1)
-    ax.set_title("cost")
-    ax.set_ylabel("iteration")
-    ax.plot(bssa.get_cost_history(), 'g')
-    ax = fig.add_subplot(1, 2, 2)
-    ax.set_title("err, selected features history")
-    sf = bssa.get_selected_features_history()[-1]*problem_dim
-    acc = (bssa.get_acc_history()[-1])*100
-    ax.plot(bssa.get_acc_history(), 'r', label="acc, final {:.3f} %".format(acc))
-    ax.plot(bssa.get_selected_features_history(), 'b', label="selcted features {}".format(sf))
-
-    ax.legend()
+    plot_cost_accuracy(bssa, problem_dim)
 sf = bssa_list[0].get_best_salp().get_position()
-print(sf)
 print("Test accuracy = {}".format(test_acc_svm(list(sf), x_test, y_test, x_train, y_train)))
 plt.show()
