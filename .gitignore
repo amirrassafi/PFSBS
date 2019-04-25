@@ -1,5 +1,6 @@
 #dataset
-dataset/*
+datasets/*
+
 #test files
 test.py
 #log
